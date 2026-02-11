@@ -14,7 +14,7 @@ from src.utils import set_global_seed, collect_run_info
 
 def make_env(seed: int):
     def _init():
-        env = gym.make("CarRacing-v2", render_mode="rgb_array")
+        env = gym.make("CarRacing-v3", render_mode="rgb_array")
         env = Monitor(env)
         env.reset(seed=seed)
         return env
