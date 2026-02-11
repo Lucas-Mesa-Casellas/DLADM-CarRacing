@@ -1,7 +1,7 @@
 # Base configuration for DLADM CarRacing
 seed: 42
 environment:
-  name: "CarRacing-v2"
+  name: "CarRacing-v3"
   render_mode: "rgb_array"
 training:
   algorithm: "PPO"
