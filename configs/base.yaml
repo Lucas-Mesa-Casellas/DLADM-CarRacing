@@ -5,7 +5,7 @@ environment:
   render_mode: "rgb_array"
 training:
   algorithm: "PPO"
-  total_timesteps: 500000
+  total_timesteps: 100000
   learning_rate: 0.0003
   gamma: 0.99
   batch_size: 64
