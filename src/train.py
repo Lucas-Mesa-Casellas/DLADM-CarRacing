@@ -1,33 +1,48 @@
 from __future__ import annotations
 
-from pathlib import Path
 import argparse
 import shutil
-import yaml
+from pathlib import Path
+
 import gymnasium as gym
+import yaml
 
 from stable_baselines3 import PPO
-from stable_baselines3.common.vec_env import VecFrameStack, DummyVecEnv
-from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.callbacks import CheckpointCallback
+from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecTransposeImage
 
 from src.utils import set_global_seed, collect_run_info
 
 
 def make_env(seed: int):
-    """Create a single CarRacing env with monitoring + deterministic reset seed."""
+    """
+    Create a single CarRacing-v3 env with monitoring + deterministic reset seed.
+    Wrapped inside DummyVecEnv in main().
+    """
     def _init():
         env = gym.make("CarRacing-v3")
         env = Monitor(env)
         env.reset(seed=seed)
         return env
+
     return _init
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", type=str, default="configs/base.yaml",
-                        help="Path to YAML config")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="configs/base.yaml",
+        help="Path to YAML config",
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="auto",
+        help="SB3 device: auto/cpu/cuda",
+    )
     args = parser.parse_args()
 
     cfg_path = Path(args.config)
@@ -37,15 +52,17 @@ def main():
     cfg = yaml.safe_load(cfg_path.read_text())
     seed = int(cfg.get("seed", 42))
 
+    # Reproducibility
     set_global_seed(seed)
-    print(collect_run_info(seed))
+    run_info = collect_run_info(seed)
+    print(run_info)
 
     # Experiment naming (prevents overwriting logs/models)
     exp_name = cfg.get("experiment_name", cfg_path.stem)
 
     # Paths
     log_dir = Path("logs/ppo") / exp_name
-    model_dir = Path("results/models")
+    model_dir = Path("results/models") / exp_name
     run_cfg_dir = Path("reports") / exp_name
     log_dir.mkdir(parents=True, exist_ok=True)
     model_dir.mkdir(parents=True, exist_ok=True)
@@ -54,12 +71,18 @@ def main():
     # Save the exact config used (reproducibility for report/markers)
     shutil.copyfile(cfg_path, run_cfg_dir / "config_used.yaml")
 
-    # Env
+    # Save run info (versions + cuda availability) for your report
+    (run_cfg_dir / "run_info.txt").write_text(str(run_info), encoding="utf-8")
+
+    # Env (MATCH evaluate.py / record_video.py wrappers)
+    tr = cfg["training"]
+    frame_stack = int(tr.get("frame_stack", 4))
+
     env = DummyVecEnv([make_env(seed)])
-    env = VecFrameStack(env, n_stack=int(cfg["training"].get("frame_stack", 4)))
+    env = VecTransposeImage(env)               # (H,W,C) -> (C,H,W) for CnnPolicy
+    env = VecFrameStack(env, n_stack=frame_stack)
 
     # Training params
-    tr = cfg["training"]
     total_timesteps = int(tr["total_timesteps"])
     checkpoint_freq = int(tr.get("checkpoint_freq", 50_000))
 
@@ -74,6 +97,7 @@ def main():
         verbose=1,
         tensorboard_log=str(log_dir),
         seed=seed,
+        device=args.device,
     )
 
     # Checkpoints
@@ -89,6 +113,8 @@ def main():
     final_name = f"ppo_{exp_name}_final"
     model.save(str(model_dir / final_name))
     print("Saved final model to", model_dir / f"{final_name}.zip")
+
+    env.close()
 
 
 if __name__ == "__main__":
