@@ -1,8 +1,22 @@
+# Gamma ablation
+experiment_name: "gamma_095"
 seed: 42
 
+environment:
+  name: "CarRacing-v3"
+  render_mode: "rgb_array"
+
 training:
-  total_timesteps: 100000
-  learning_rate: 0.0001
-  n_steps: 2048
-  batch_size: 64
+  algorithm: "PPO"
+  total_timesteps: 50000
+  learning_rate: 0.0003
   gamma: 0.95
+  batch_size: 64
+  n_steps: 2048
+  frame_stack: 4
+  checkpoint_freq: 50000
+
+evaluation:
+  n_eval_episodes: 10
+  seeds: [0, 1, 2, 3, 4]
+  success_threshold: 200.0
