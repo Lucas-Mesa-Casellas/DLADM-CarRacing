@@ -205,3 +205,21 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# --- Generated artifacts / heavy files ---
+.venv/
+__pycache__/
+*.pyc
+
+logs/
+results/models/
+videos/
+reports/**
+
+# Keep folder structure (we track .gitkeep)
+!logs/.gitkeep
+!results/.gitkeep
+!results/models/.gitkeep
+!videos/.gitkeep
+!reports/.gitkeep
+

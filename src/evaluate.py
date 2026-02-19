@@ -7,15 +7,27 @@ import numpy as np
 import gymnasium as gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.evaluation import evaluate_policy
+from stable_baselines3.common.vec_env import DummyVecEnv, VecTransposeImage, VecFrameStack
+from stable_baselines3.common.monitor import Monitor
 
 
 def make_env(seed: int):
     """
-    Create CarRacing-v3 environment for evaluation (no rendering for speed).
+    Create CarRacing-v3 environment using the SAME wrappers as training.
     """
-    env = gym.make("CarRacing-v3")
-    env.reset(seed=seed)
+
+    def _init():
+        env = gym.make("CarRacing-v3")
+        env = Monitor(env)
+        env.reset(seed=seed)
+        return env
+
+    env = DummyVecEnv([_init])
+    env = VecTransposeImage(env)        # (H,W,C) -> (C,H,W)
+    env = VecFrameStack(env, n_stack=4) # 4 frames -> 12 channels
+
     return env
+
 
 
 def eval_one_seed(model_path: str, seed: int, n_eval_episodes: int, success_threshold: float):
