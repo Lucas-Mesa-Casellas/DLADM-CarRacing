@@ -15,13 +15,13 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecTran
 from src.utils import set_global_seed, collect_run_info
 
 
-def make_env(seed: int):
+def make_env(env_name: str, seed: int):
     """
-    Create a single CarRacing-v3 env with monitoring + deterministic reset seed.
+    Create a single Gymnasium env with monitoring + deterministic reset seed.
     Wrapped inside DummyVecEnv in main().
     """
     def _init():
-        env = gym.make("CarRacing-v3")
+        env = gym.make(env_name)
         env = Monitor(env)
         env.reset(seed=seed)
         return env
@@ -52,6 +52,10 @@ def main():
     cfg = yaml.safe_load(cfg_path.read_text())
     seed = int(cfg.get("seed", 42))
 
+    # Read environment from config 
+    env_cfg = cfg.get("environment", {})
+    env_name = env_cfg.get("name", "CarRacing-v3")
+
     # Reproducibility
     set_global_seed(seed)
     run_info = collect_run_info(seed)
@@ -68,17 +72,17 @@ def main():
     model_dir.mkdir(parents=True, exist_ok=True)
     run_cfg_dir.mkdir(parents=True, exist_ok=True)
 
-    # Save the exact config used (reproducibility for report/markers)
+    # Save the exact config used 
     shutil.copyfile(cfg_path, run_cfg_dir / "config_used.yaml")
 
-    # Save run info (versions + cuda availability) for your report
+    # Save run info (versions + cuda availability)
     (run_cfg_dir / "run_info.txt").write_text(str(run_info), encoding="utf-8")
 
     # Env (MATCH evaluate.py / record_video.py wrappers)
     tr = cfg["training"]
     frame_stack = int(tr.get("frame_stack", 4))
 
-    env = DummyVecEnv([make_env(seed)])
+    env = DummyVecEnv([make_env(env_name, seed)])
     env = VecTransposeImage(env)               # (H,W,C) -> (C,H,W) for CnnPolicy
     env = VecFrameStack(env, n_stack=frame_stack)
 
