@@ -2,7 +2,10 @@ import os
 import json
 import csv
 import argparse
+from pathlib import Path
+
 import numpy as np
+import yaml
 
 import gymnasium as gym
 from stable_baselines3 import PPO
@@ -11,13 +14,12 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecTransposeImage, Vec
 from stable_baselines3.common.monitor import Monitor
 
 
-def make_env(seed: int):
+def make_env(env_name: str, seed: int):
     """
-    Create CarRacing-v3 environment using the SAME wrappers as training.
+    Create CarRacing environment using the SAME wrappers as training.
     """
-
     def _init():
-        env = gym.make("CarRacing-v3")
+        env = gym.make(env_name)
         env = Monitor(env)
         env.reset(seed=seed)
         return env
@@ -25,16 +27,14 @@ def make_env(seed: int):
     env = DummyVecEnv([_init])
     env = VecTransposeImage(env)        # (H,W,C) -> (C,H,W)
     env = VecFrameStack(env, n_stack=4) # 4 frames -> 12 channels
-
     return env
 
 
-
-def eval_one_seed(model_path: str, seed: int, n_eval_episodes: int, success_threshold: float):
+def eval_one_seed(env_name: str, model_path: str, seed: int, n_eval_episodes: int, success_threshold: float):
     """
     Evaluate a model for a given seed and return summary metrics.
     """
-    env = make_env(seed)
+    env = make_env(env_name, seed)
     model = PPO.load(model_path)
 
     ep_rewards, ep_lengths = evaluate_policy(
@@ -67,16 +67,37 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--model_path", type=str, required=True, help="Path to SB3 PPO .zip model")
     p.add_argument("--out_dir", type=str, default="reports", help="Where to save CSV/JSON results")
+
+    # Load defaults from YAML config
+    p.add_argument("--config", type=str, default=None, help="Optional YAML config for eval defaults")
+
+    # CLI defaults (used if no config)
     p.add_argument("--n_eval_episodes", type=int, default=5)
     p.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2, 3, 4])
     p.add_argument("--success_threshold", type=float, default=200.0)
+
     args = p.parse_args()
+
+    # Defaults
+    env_name = "CarRacing-v3"
+
+    # If config provided, override eval settings from YAML
+    if args.config is not None:
+        cfg = yaml.safe_load(Path(args.config).read_text())
+
+        env_cfg = cfg.get("environment", {})
+        env_name = env_cfg.get("name", env_name)
+
+        eval_cfg = cfg.get("evaluation", {})
+        args.n_eval_episodes = int(eval_cfg.get("n_eval_episodes", args.n_eval_episodes))
+        args.seeds = list(eval_cfg.get("seeds", args.seeds))
+        args.success_threshold = float(eval_cfg.get("success_threshold", args.success_threshold))
 
     os.makedirs(args.out_dir, exist_ok=True)
 
     rows = []
     for seed in args.seeds:
-        r = eval_one_seed(args.model_path, seed, args.n_eval_episodes, args.success_threshold)
+        r = eval_one_seed(env_name, args.model_path, seed, args.n_eval_episodes, args.success_threshold)
         rows.append(r)
         print(
             f"[seed={seed}] reward_mean={r['reward_mean']:.1f}±{r['reward_std']:.1f} "
