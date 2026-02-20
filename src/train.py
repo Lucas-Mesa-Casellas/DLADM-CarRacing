@@ -54,7 +54,7 @@ def main():
 
     # Read environment from config 
     env_cfg = cfg.get("environment", {})
-    env_name = env_cfg.get("name", "CarRacing-v3")
+    env_name = env_cfg.get("name", "CarRacing-v2")
 
     # Reproducibility
     set_global_seed(seed)
