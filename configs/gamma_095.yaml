@@ -8,7 +8,7 @@ environment:
 
 training:
   algorithm: "PPO"
-  total_timesteps: 50000
+  total_timesteps: 500000
   learning_rate: 0.0003
   gamma: 0.95
   batch_size: 64
