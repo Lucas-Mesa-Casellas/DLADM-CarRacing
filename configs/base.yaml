@@ -3,7 +3,7 @@ experiment_name: "base"
 seed: 42
 
 environment:
-  name: "CarRacing-v3"
+  name: "CarRacing-v2"
   render_mode: "rgb_array"
 
 training:
