@@ -7,13 +7,13 @@ from pathlib import Path
 import gymnasium as gym
 import yaml
 
-from src.wrappers import ActionDTypeWrapper
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CheckpointCallback
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecTransposeImage
 
 from src.utils import set_global_seed, collect_run_info
+from src.wrappers import ActionDTypeWrapper
 
 
 def make_env(env_name: str, seed: int):
@@ -23,10 +23,16 @@ def make_env(env_name: str, seed: int):
     """
     def _init():
         env = gym.make(env_name)
-        env = ActionDTypeWrapper(env)
+        env = ActionDTypeWrapper(env)  # Fix Box2D float32 action dtype crash
         env = Monitor(env)
         env.reset(seed=seed)
-            return env
+        # Extra reproducibility (best-effort)
+        try:
+            env.action_space.seed(seed)
+            env.observation_space.seed(seed)
+        except Exception:
+            pass
+        return env
 
     return _init
 
@@ -54,7 +60,7 @@ def main():
     cfg = yaml.safe_load(cfg_path.read_text())
     seed = int(cfg.get("seed", 42))
 
-    # Read environment from config 
+    # Read environment from config
     env_cfg = cfg.get("environment", {})
     env_name = env_cfg.get("name", "CarRacing-v2")
 
@@ -74,7 +80,7 @@ def main():
     model_dir.mkdir(parents=True, exist_ok=True)
     run_cfg_dir.mkdir(parents=True, exist_ok=True)
 
-    # Save the exact config used 
+    # Save the exact config used
     shutil.copyfile(cfg_path, run_cfg_dir / "config_used.yaml")
 
     # Save run info (versions + cuda availability)
@@ -85,7 +91,7 @@ def main():
     frame_stack = int(tr.get("frame_stack", 4))
 
     env = DummyVecEnv([make_env(env_name, seed)])
-    env = VecTransposeImage(env)               # (H,W,C) -> (C,H,W) for CnnPolicy
+    env = VecTransposeImage(env)  # (H,W,C) -> (C,H,W) for CnnPolicy
     env = VecFrameStack(env, n_stack=frame_stack)
 
     # Training params
