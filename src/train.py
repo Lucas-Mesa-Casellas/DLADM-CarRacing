@@ -13,7 +13,7 @@ from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecTransposeImage
 
 from src.utils import set_global_seed, collect_run_info
-from src.wrappers import ActionDTypeWrapper
+from src.wrappers import ActionToPythonFloatWrapper
 
 
 def make_env(env_name: str, seed: int):
@@ -23,10 +23,10 @@ def make_env(env_name: str, seed: int):
     """
     def _init():
         env = gym.make(env_name)
-        env = ActionDTypeWrapper(env)  # Fix Box2D float32 action dtype crash
+        env = ActionToPythonFloatWrapper(env)  
         env = Monitor(env)
         env.reset(seed=seed)
-        # Extra reproducibility (best-effort)
+       
         try:
             env.action_space.seed(seed)
             env.observation_space.seed(seed)
