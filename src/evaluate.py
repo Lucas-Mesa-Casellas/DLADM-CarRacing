@@ -68,7 +68,7 @@ def main():
     p.add_argument("--model_path", type=str, required=True, help="Path to SB3 PPO .zip model")
     p.add_argument("--out_dir", type=str, default="reports", help="Where to save CSV/JSON results")
 
-    # Load defaults from YAML config
+    # Optional: load defaults from YAML config
     p.add_argument("--config", type=str, default=None, help="Optional YAML config for eval defaults")
 
     # CLI defaults (used if no config)
