@@ -7,6 +7,7 @@ from pathlib import Path
 import gymnasium as gym
 import yaml
 
+from src.wrappers import ActionDTypeWrapper
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CheckpointCallback
 from stable_baselines3.common.monitor import Monitor
@@ -22,9 +23,10 @@ def make_env(env_name: str, seed: int):
     """
     def _init():
         env = gym.make(env_name)
+        env = ActionDTypeWrapper(env)
         env = Monitor(env)
         env.reset(seed=seed)
-        return env
+            return env
 
     return _init
 
