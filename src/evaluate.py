@@ -20,10 +20,11 @@ def make_env(env_name: str, seed: int, frame_stack: int = 4):
     Create CarRacing environment using the SAME wrappers as training.
     """
     def _init():
-        env = gym.make(env_name, render_mode="rgb_array")  # keep consistent + safe
+        env = gym.make(env_name, render_mode="rgb_array")
+        env = ActionDTypeWrapper(env)
         env = Monitor(env)
         env.reset(seed=seed)
-        # extra reproducibility (when supported)
+        
         try:
             env.action_space.seed(seed)
             env.observation_space.seed(seed)
