@@ -4,7 +4,7 @@ import argparse
 import gymnasium as gym
 from gymnasium.wrappers import RecordVideo
 
-from src.wrappers import ActionDTypeWrapper
+from src.wrappers import ActionToPythonFloatWrapper
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecTransposeImage, VecFrameStack
 from stable_baselines3.common.monitor import Monitor
@@ -13,7 +13,7 @@ from stable_baselines3.common.monitor import Monitor
 def make_env(env_name: str, seed: int, video_folder: str, name_prefix: str, frame_stack: int = 4):
     def _init():
         env = gym.make(env_name, render_mode="rgb_array")
-        env = ActionDTypeWrapper(env)
+        env = ActionToPythonFloatWrapper(env)
         env = Monitor(env)
         env = RecordVideo(
             env,
