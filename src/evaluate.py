@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import yaml
 
-from src.wrappers import ActionDTypeWrapper
+from src.wrappers import ActionToPythonFloatWrapper
 import gymnasium as gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.evaluation import evaluate_policy
@@ -21,7 +21,7 @@ def make_env(env_name: str, seed: int, frame_stack: int = 4):
     """
     def _init():
         env = gym.make(env_name, render_mode="rgb_array")
-        env = ActionDTypeWrapper(env)
+        env = ActionToPythonFloatWrapper(env)
         env = Monitor(env)
         env.reset(seed=seed)
         
