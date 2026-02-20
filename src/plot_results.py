@@ -33,7 +33,7 @@ def main():
     plt.errorbar(df["seed"], df["reward_mean"], yerr=df["reward_std"], fmt="o", capsize=4)
     plt.xlabel("Evaluation seed (unseen)")
     plt.ylabel("Episode reward (mean ± std)")
-    plt.title("PPO generalisation on CarRacing-v3")
+    plt.title("PPO generalisation on CarRacing-v2")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     p1 = out_dir / "reward_by_seed.png"
