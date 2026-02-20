@@ -1,5 +1,4 @@
-#Utility functions for DLADM CarRacing project. Reproducibility + environment helpers.
-
+#Utility functions for DLADM CarRacing project. 
 from __future__ import annotations
 import os
 import random
@@ -16,7 +15,6 @@ def set_global_seed(seed: int, deterministic_torch: bool = True) -> None:
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     if deterministic_torch:
-        # Determinism can slightly reduce speed but improves reproducibility (good for grading)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
 
