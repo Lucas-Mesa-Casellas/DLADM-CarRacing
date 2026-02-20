@@ -23,7 +23,7 @@ def main():
     overall_mean = df["reward_mean"].mean()
     overall_std = df["reward_mean"].std(ddof=1) if len(df) > 1 else 0.0
 
-    print("\n=== Generalisation summary ===")
+    print("\nGeneralisation summary:")
     print(df[["seed", "reward_mean", "reward_std", "len_mean", "success_rate"]].to_string(index=False))
     print(f"\nOverall reward_mean across seeds: {overall_mean:.2f} ± {overall_std:.2f}")
     print(f"Overall success_rate across seeds: {df['success_rate'].mean():.2f}")
