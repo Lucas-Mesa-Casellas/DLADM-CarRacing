@@ -2,9 +2,9 @@ import numpy as np
 import gymnasium as gym
 
 
-class ActionDTypeWrapper(gym.ActionWrapper):
-    """
-    Ensures actions are float32 before reaching Box2D (prevents b2RevoluteJoint motorSpeed dtype crash).
-    """
+class ActionToPythonFloatWrapper(gym.ActionWrapper):
+
     def action(self, action):
-        return np.asarray(action, dtype=np.float32)
+        a = np.asarray(action).reshape(-1)
+        # CarRacing action is 3D: [steer, gas, brake]
+        return (float(a[0]), float(a[1]), float(a[2]))
