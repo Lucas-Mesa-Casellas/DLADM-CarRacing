@@ -1,0 +1,22 @@
+# Learning-rate ablation
+experiment_name: "lr_1e4"
+seed: 42
+
+environment:
+  name: "CarRacing-v2"
+  render_mode: "rgb_array"
+
+training:
+  algorithm: "PPO"
+  total_timesteps: 100000
+  learning_rate: 0.0001
+  gamma: 0.99
+  batch_size: 64
+  n_steps: 2048
+  frame_stack: 4
+  checkpoint_freq: 50000
+
+evaluation:
+  n_eval_episodes: 10
+  seeds: [0, 1, 2, 3, 4]
+  success_threshold: 200.0

@@ -1,0 +1,64 @@
+{
+  "results": [
+    {
+      "seed": 0,
+      "n_eval_episodes": 10,
+      "reward_mean": 50.85163949999999,
+      "reward_std": 61.67370662114714,
+      "len_mean": 1000.0,
+      "len_std": 0.0,
+      "success_rate": 0.0,
+      "success_threshold": 200.0,
+      "frame_stack": 4,
+      "env_name": "CarRacing-v2"
+    },
+    {
+      "seed": 1,
+      "n_eval_episodes": 10,
+      "reward_mean": 1.8466175,
+      "reward_std": 9.61064985117485,
+      "len_mean": 1000.0,
+      "len_std": 0.0,
+      "success_rate": 0.0,
+      "success_threshold": 200.0,
+      "frame_stack": 4,
+      "env_name": "CarRacing-v2"
+    },
+    {
+      "seed": 2,
+      "n_eval_episodes": 10,
+      "reward_mean": 12.526959800000002,
+      "reward_std": 29.399052844849685,
+      "len_mean": 1000.0,
+      "len_std": 0.0,
+      "success_rate": 0.0,
+      "success_threshold": 200.0,
+      "frame_stack": 4,
+      "env_name": "CarRacing-v2"
+    },
+    {
+      "seed": 3,
+      "n_eval_episodes": 10,
+      "reward_mean": 25.0430485,
+      "reward_std": 51.57011383175169,
+      "len_mean": 1000.0,
+      "len_std": 0.0,
+      "success_rate": 0.0,
+      "success_threshold": 200.0,
+      "frame_stack": 4,
+      "env_name": "CarRacing-v2"
+    },
+    {
+      "seed": 4,
+      "n_eval_episodes": 10,
+      "reward_mean": 13.1186149,
+      "reward_std": 34.21476150257556,
+      "len_mean": 1000.0,
+      "len_std": 0.0,
+      "success_rate": 0.0,
+      "success_threshold": 200.0,
+      "frame_stack": 4,
+      "env_name": "CarRacing-v2"
+    }
+  ]
+}
