@@ -22,7 +22,7 @@ def make_env(env_name: str, seed: int):
     Wrapped inside DummyVecEnv in main().
     """
     def _init():
-        env = gym.make(env_name)
+        env = gym.make(env_name, render_mode="rgb_array")
         env = ActionToPythonFloatWrapper(env)  
         env = Monitor(env)
         env.reset(seed=seed)
